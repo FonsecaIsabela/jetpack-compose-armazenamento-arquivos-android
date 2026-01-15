@@ -82,7 +82,7 @@ private fun BottomSheetStickers(
                         .fillMaxSize()
                         .padding(8.dp)
                         .clickable {
-//                            onSelectedSticker()
+                            onSelectedSticker(Uri.parse(item))
                         }
                 ) {
 
@@ -91,7 +91,7 @@ private fun BottomSheetStickers(
                             .size(50.dp)
                             .align(Alignment.Center),
                         contentScale = ContentScale.Inside,
-                        model = "",
+                        model = item,
                         placeholder = painterResource(R.drawable.image_place_holder),
                         error = painterResource(R.drawable.image_place_holder),
                         contentDescription = null,
