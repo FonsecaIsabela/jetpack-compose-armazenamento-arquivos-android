@@ -34,8 +34,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.alura.concord.R
-import com.alura.concord.data.Author
-import com.alura.concord.data.messageListSample
+import com.alura.concord.database.entities.Author
+import com.alura.concord.data.MessageWithFile
+import com.alura.concord.data.messageEntityListSamples
+import com.alura.concord.database.entities.toMessageFile
 import com.alura.concord.ui.components.*
 
 @Composable
@@ -47,6 +49,8 @@ fun MessageScreen(
     onShowSelectorStickers: () -> Unit = {},
     onDeselectMedia: () -> Unit = {},
     onBack: () -> Unit = {},
+    onContentDownload: (MessageWithFile) -> Unit = {},
+    onShowFileOptions: (MessageWithFile) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -66,14 +70,23 @@ fun MessageScreen(
                     .padding(horizontal = 16.dp)
                     .weight(8f), reverseLayout = true
             ) {
-                items(state.messages.reversed(), contentType = { it.author }) { it ->
-                    when (it.author) {
+                items(state.messages.reversed(), contentType = { it.author }) { message ->
+
+                    when (message.author) {
                         Author.OTHER -> {
-                            MessageItemOther(it)
+                            MessageItemOther(
+                                message = message,
+                                onContentDownload = {
+                                    onContentDownload(message)
+                                },
+                                onShowFileOptions = {
+                                    onShowFileOptions(message)
+                                },
+                            )
                         }
 
                         Author.USER -> {
-                            MessageItemUser(it)
+                            MessageItemUser(message)
                         }
                     }
 
@@ -101,7 +114,11 @@ private fun SelectedMediaContainer(
     state: MessageListUiState,
     onDeselectMedia: () -> Unit,
 ) {
-    Divider(Modifier.height(0.4.dp).alpha(0.5f), color = MaterialTheme.colorScheme.outline)
+    Divider(
+        Modifier
+            .height(0.4.dp)
+            .alpha(0.5f), color = MaterialTheme.colorScheme.outline
+    )
     Box(
         contentAlignment = Alignment.BottomEnd,
         modifier = Modifier
@@ -109,7 +126,10 @@ private fun SelectedMediaContainer(
             .background(MaterialTheme.colorScheme.onPrimaryContainer),
     ) {
         AsyncImage(
-            modifier = Modifier.size(150.dp).padding(8.dp).clip(RoundedCornerShape(5)),
+            modifier = Modifier
+                .size(150.dp)
+                .padding(8.dp)
+                .clip(RoundedCornerShape(5)),
             imageUrl = state.mediaInSelection
         )
         IconButton(
@@ -125,7 +145,8 @@ private fun SelectedMediaContainer(
                 .background(
                     Color.Black,
                     CircleShape
-                ).size(22.dp),
+                )
+                .size(22.dp),
         ) {
             Icon(
                 Icons.Default.Close,
@@ -145,9 +166,11 @@ fun AppBarChatScreen(
     TopAppBar(
         navigationIcon = {
             Row(
-                modifier = Modifier.fillMaxHeight().clickable {
-                    onBackClick()
-                },
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .clickable {
+                        onBackClick()
+                    },
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
@@ -168,7 +191,6 @@ fun AppBarChatScreen(
         },
         title = {
             Text(text = state.ownerName, fontWeight = FontWeight.Medium)
-
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
@@ -308,7 +330,8 @@ private fun EntryTextBar(
 fun ChatScreenPreview() {
     MessageScreen(
         MessageListUiState(
-            messages = messageListSample,
+            ownerName = "Alberto",
+            messages = messageEntityListSamples.map { it.toMessageFile() },
         )
     )
 }

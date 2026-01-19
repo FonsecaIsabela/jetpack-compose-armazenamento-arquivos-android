@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.alura.concord.database.ChatDao
 import com.alura.concord.database.ConcordDatabase
+import com.alura.concord.database.DownloadableFileDao
 import com.alura.concord.database.MessageDao
 import dagger.Module
 import dagger.Provides
@@ -26,7 +27,8 @@ class DatabaseModule {
             context,
             ConcordDatabase::class.java,
             DATABASE_NAME
-        ).createFromAsset("database/concord.db")
+        )
+            .createFromAsset("database/concord.db")
             .build()
     }
 
@@ -39,4 +41,10 @@ class DatabaseModule {
     fun provideMessageDao(db: ConcordDatabase): MessageDao {
         return db.messageDao()
     }
+
+    @Provides
+    fun provideDownloadableFileDao(db: ConcordDatabase): DownloadableFileDao {
+        return db.downloadableFileDao()
+    }
+
 }
